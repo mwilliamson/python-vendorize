@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+
+try:
+    import xmlrpclib
+except ImportError:
+    import xmlrpc.client as xmlrpclib
+
+import sys
+import urllib2
+import tarfile
+import io
+import subprocess
+import os
+import shutil
+
+import tempman
+
+from vendorize.setuptools_build import SETUPTOOLS_SHIM
+
+
+def main():
+    package_name = sys.argv[1]
+    target_directory = sys.argv[2]
+    
+    index = PackageIndex(xmlrpclib.ServerProxy('https://pypi.python.org/pypi'))
+
+    version = index.latest_version(package_name)
+    with tempman.create_temp_dir() as temp_directory:
+        index.download_source(package_name, version, temp_directory.path)
+        source_directory = os.path.join(temp_directory.path, "{0}-{1}".format(package_name, version))
+        script = SETUPTOOLS_SHIM % os.path.join(source_directory, "setup.py")
+        subprocess.check_call(
+            [sys.executable, "-c", script, "egg_info"],
+            cwd=source_directory)
+        with open(os.path.join(source_directory, package_name + ".egg-info/top_level.txt")) as requires_fileobj:
+            top_level_names = filter(None, map(str.strip, requires_fileobj))
+        
+        _mkdir_p(target_directory)
+        
+        for top_level_name in top_level_names:
+            module_path = os.path.join(source_directory, top_level_name + ".py")
+            if os.path.exists(module_path):
+                shutil.copy2(module_path, target_directory)
+            
+            package_path = os.path.join(source_directory, top_level_name)
+            if os.path.exists(package_path):
+                target_package_directory = os.path.join(target_directory, top_level_name)
+                for (dirpath, dirnames, filenames) in os.walk(package_path):
+                    relative_dirpath = os.path.relpath(dirpath, package_path)
+                    target_dirpath = os.path.join(target_package_directory, relative_dirpath)
+                    _mkdir_p(target_dirpath)
+                    for filename in filenames:
+                        shutil.copy2(os.path.join(dirpath, filename), target_dirpath)
+                    
+def _mkdir_p(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+    
+
+class PackageIndex(object):
+    def __init__(self, client):
+        self._client = client
+    
+    def latest_version(self, package_name):
+        releases = self._client.package_releases(package_name)
+        return releases[0]
+    
+    def download_source(self, package_name, version, target_directory):
+        url = _find(
+            lambda release_url: release_url["packagetype"] == "sdist",
+            self._client.release_urls(package_name, version))["url"]
+        tarball_fileobj = io.BytesIO(urllib2.urlopen(url).read())
+        tarball = tarfile.open(fileobj=tarball_fileobj)
+        tarball.extractall(target_directory)
+
+
+def _find(predicate, values):
+    for value in values:
+        if predicate(value):
+            return value
+
+
+if __name__ == "__main__":
+    main()

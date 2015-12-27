@@ -7,6 +7,7 @@ import io
 import subprocess
 import os
 import shutil
+import contextlib
 
 import tempman
 import distlib.locators
@@ -20,9 +21,7 @@ def main():
     
     distribution = distlib.locators.locate(requirement)
     package_name = distribution.name
-    with tempman.create_temp_dir() as temp_directory:
-        _download_tarball(distribution.source_url, temp_directory.path)
-        source_directory = os.path.join(temp_directory.path, "{0}-{1}".format(package_name, distribution.version))
+    with _download_distribution_source(distribution) as source_directory:
         script = SETUPTOOLS_SHIM % os.path.join(source_directory, "setup.py")
         subprocess.check_call(
             [sys.executable, "-c", script, "egg_info"],
@@ -50,6 +49,13 @@ def main():
 def _mkdir_p(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
+
+@contextlib.contextmanager
+def _download_distribution_source(distribution):
+    with tempman.create_temp_dir() as temp_directory:
+        _download_tarball(distribution.source_url, temp_directory.path)
+        yield os.path.join(temp_directory.path, "{0}-{1}".format(distribution.name, distribution.version))
 
 
 def _download_tarball(url, target_directory):

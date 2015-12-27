@@ -18,7 +18,7 @@ setup(
     author_email='mike@zwobble.org',
     url='http://github.com/mwilliamson/python-vendorize',
     packages=['vendorize'],
-    install_requires=["tempman>=0.1.3,<0.2"],
+    install_requires=["tempman>=0.1.3,<0.2", "distlib>=0.2.1,<0.3"],
     keywords="vendor vendorize",
 )
 

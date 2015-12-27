@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 
-try:
-    import xmlrpclib
-except ImportError:
-    import xmlrpc.client as xmlrpclib
-
 import sys
 import urllib2
 import tarfile
@@ -14,19 +9,20 @@ import os
 import shutil
 
 import tempman
+import distlib.locators
 
 from vendorize.setuptools_build import SETUPTOOLS_SHIM
 
 
 def main():
-    package_name = sys.argv[1]
+    requirement = sys.argv[1]
     target_directory = sys.argv[2]
     
-    index = PackageIndex(xmlrpclib.ServerProxy('https://pypi.python.org/pypi'))
-
-    version = index.latest_version(package_name)
+    distribution = distlib.locators.locate(requirement)
+    package_name = distribution.name
     with tempman.create_temp_dir() as temp_directory:
-        source_directory = index.download_source(package_name, version, temp_directory.path)
+        _download_tarball(distribution.source_url, temp_directory.path)
+        source_directory = os.path.join(temp_directory.path, "{0}-{1}".format(package_name, distribution.version))
         script = SETUPTOOLS_SHIM % os.path.join(source_directory, "setup.py")
         subprocess.check_call(
             [sys.executable, "-c", script, "egg_info"],
@@ -54,24 +50,12 @@ def main():
 def _mkdir_p(path):
     if not os.path.exists(path):
         os.makedirs(path)
-    
 
-class PackageIndex(object):
-    def __init__(self, client):
-        self._client = client
-    
-    def latest_version(self, package_name):
-        releases = self._client.package_releases(package_name)
-        return releases[0]
-    
-    def download_source(self, package_name, version, target_directory):
-        url = _find(
-            lambda release_url: release_url["packagetype"] == "sdist",
-            self._client.release_urls(package_name, version))["url"]
-        tarball_fileobj = io.BytesIO(urllib2.urlopen(url).read())
-        tarball = tarfile.open(fileobj=tarball_fileobj)
-        tarball.extractall(target_directory)
-        return os.path.join(target_directory, "{0}-{1}".format(package_name, version))
+
+def _download_tarball(url, target_directory):
+    tarball_fileobj = io.BytesIO(urllib2.urlopen(url).read())
+    tarball = tarfile.open(fileobj=tarball_fileobj)
+    tarball.extractall(target_directory)
 
 
 def _find(predicate, values):

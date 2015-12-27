@@ -2,7 +2,7 @@ import os
 import shutil
 import io
 import tarfile
-import urllib2
+from ._vendor.six.moves.urllib.request import urlopen
 
                     
 def mkdir_p(path):
@@ -30,6 +30,6 @@ def copy_recursive(source, destination):
 
 
 def download_tarball(url, target_directory):
-    tarball_fileobj = io.BytesIO(urllib2.urlopen(url).read())
+    tarball_fileobj = io.BytesIO(urlopen(url).read())
     tarball = tarfile.open(fileobj=tarball_fileobj)
     tarball.extractall(target_directory)

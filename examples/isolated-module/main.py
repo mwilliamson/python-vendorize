@@ -3,4 +3,4 @@
 from _vendor import six
 
 for key, value in six.iteritems({"one": 1}):
-    print(key, value)
+    print((key, value))

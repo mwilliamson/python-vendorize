@@ -47,4 +47,4 @@ class EggInfo(object):
     
     def top_level(self):
         with open(os.path.join(self._path, "top_level.txt")) as top_level_fileobj:
-            return filter(None, map(str.strip, top_level_fileobj))
+            return list(filter(None, map(str.strip, top_level_fileobj)))

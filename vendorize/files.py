@@ -10,6 +10,11 @@ def mkdir_p(path):
         os.makedirs(path)
 
 
+def ensure_file_exists(path):
+    if not os.path.exists(path):
+        open(path, "w").close()
+
+
 def copy(source, destination):
     shutil.copy2(source, destination)
 

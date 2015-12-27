@@ -1,7 +1,7 @@
 import os
 from ConfigParser import RawConfigParser
 
-from .files import mkdir_p, copy, copy_recursive
+from .files import mkdir_p, copy, copy_recursive, ensure_file_exists
 from . import pypi
 
 
@@ -10,6 +10,7 @@ def vendorize_requirements(path):
     parser = RawConfigParser()
     parser.read(path)
     target_directory = os.path.join(os.path.dirname(path), parser.get("vendorize", "destination"))
+    ensure_file_exists(os.path.join(target_directory, "__init__.py"))
     for section in parser.sections():
         if section.startswith(require_prefix):
             requirement = section[len(require_prefix):]

@@ -22,16 +22,11 @@ def main():
     distribution = distlib.locators.locate(requirement)
     package_name = distribution.name
     with _download_distribution_source(distribution) as source_directory:
-        script = SETUPTOOLS_SHIM % os.path.join(source_directory, "setup.py")
-        subprocess.check_call(
-            [sys.executable, "-c", script, "egg_info"],
-            cwd=source_directory)
-        with open(os.path.join(source_directory, package_name + ".egg-info/top_level.txt")) as requires_fileobj:
-            top_level_names = filter(None, map(str.strip, requires_fileobj))
+        egg_info = _egg_info(source_directory=source_directory, package_name=package_name)
         
         _mkdir_p(target_directory)
         
-        for top_level_name in top_level_names:
+        for top_level_name in egg_info.top_level():
             module_path = os.path.join(source_directory, top_level_name + ".py")
             if os.path.exists(module_path):
                 shutil.copy2(module_path, target_directory)
@@ -62,6 +57,24 @@ def _download_tarball(url, target_directory):
     tarball_fileobj = io.BytesIO(urllib2.urlopen(url).read())
     tarball = tarfile.open(fileobj=tarball_fileobj)
     tarball.extractall(target_directory)
+
+
+def _egg_info(source_directory, package_name):
+    script = SETUPTOOLS_SHIM % os.path.join(source_directory, "setup.py")
+    subprocess.check_call(
+        [sys.executable, "-c", script, "egg_info"],
+        cwd=source_directory)
+    
+    return EggInfo(os.path.join(source_directory, package_name + ".egg-info"))
+
+
+class EggInfo(object):
+    def __init__(self, path):
+        self._path = path
+    
+    def top_level(self):
+        with open(os.path.join(self._path, "top_level.txt")) as top_level_fileobj:
+            return filter(None, map(str.strip, top_level_fileobj))
 
 
 def _find(predicate, values):

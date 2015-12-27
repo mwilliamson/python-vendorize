@@ -6,13 +6,13 @@ import tarfile
 import io
 import subprocess
 import os
-import shutil
 import contextlib
 
 import tempman
 import distlib.locators
 
 from vendorize.setuptools_build import SETUPTOOLS_SHIM
+from vendorize.files import mkdir_p, copy, copy_recursive
 
 
 def main():
@@ -24,26 +24,17 @@ def main():
     with _download_distribution_source(distribution) as source_directory:
         egg_info = _egg_info(source_directory=source_directory, package_name=package_name)
         
-        _mkdir_p(target_directory)
+        mkdir_p(target_directory)
         
         for top_level_name in egg_info.top_level():
             module_path = os.path.join(source_directory, top_level_name + ".py")
             if os.path.exists(module_path):
-                shutil.copy2(module_path, target_directory)
+                copy(module_path, target_directory)
             
             package_path = os.path.join(source_directory, top_level_name)
             if os.path.exists(package_path):
                 target_package_directory = os.path.join(target_directory, top_level_name)
-                for (dirpath, dirnames, filenames) in os.walk(package_path):
-                    relative_dirpath = os.path.relpath(dirpath, package_path)
-                    target_dirpath = os.path.join(target_package_directory, relative_dirpath)
-                    _mkdir_p(target_dirpath)
-                    for filename in filenames:
-                        shutil.copy2(os.path.join(dirpath, filename), target_dirpath)
-                    
-def _mkdir_p(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
+                copy_recursive(package_path, target_package_directory)
 
 
 @contextlib.contextmanager

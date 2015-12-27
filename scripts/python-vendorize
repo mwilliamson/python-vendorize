@@ -26,8 +26,7 @@ def main():
 
     version = index.latest_version(package_name)
     with tempman.create_temp_dir() as temp_directory:
-        index.download_source(package_name, version, temp_directory.path)
-        source_directory = os.path.join(temp_directory.path, "{0}-{1}".format(package_name, version))
+        source_directory = index.download_source(package_name, version, temp_directory.path)
         script = SETUPTOOLS_SHIM % os.path.join(source_directory, "setup.py")
         subprocess.check_call(
             [sys.executable, "-c", script, "egg_info"],
@@ -72,6 +71,7 @@ class PackageIndex(object):
         tarball_fileobj = io.BytesIO(urllib2.urlopen(url).read())
         tarball = tarfile.open(fileobj=tarball_fileobj)
         tarball.extractall(target_directory)
+        return os.path.join(target_directory, "{0}-{1}".format(package_name, version))
 
 
 def _find(predicate, values):

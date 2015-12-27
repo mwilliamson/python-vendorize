@@ -1,5 +1,8 @@
 import os
 import shutil
+import io
+import tarfile
+import urllib2
 
                     
 def mkdir_p(path):
@@ -18,3 +21,9 @@ def copy_recursive(source, destination):
         mkdir_p(target_dirpath)
         for filename in filenames:
             copy(os.path.join(dirpath, filename), target_dirpath)
+
+
+def download_tarball(url, target_directory):
+    tarball_fileobj = io.BytesIO(urllib2.urlopen(url).read())
+    tarball = tarfile.open(fileobj=tarball_fileobj)
+    tarball.extractall(target_directory)

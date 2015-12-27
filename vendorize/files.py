@@ -12,6 +12,7 @@ def mkdir_p(path):
 
 def ensure_file_exists(path):
     if not os.path.exists(path):
+        mkdir_p(os.path.dirname(path))
         open(path, "w").close()
 
 

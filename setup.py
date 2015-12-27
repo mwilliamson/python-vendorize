@@ -3,7 +3,7 @@
 
 import os
 import sys
-from distutils.core import setup
+from setuptools import setup, find_packages
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -17,7 +17,8 @@ setup(
     author='Michael Williamson',
     author_email='mike@zwobble.org',
     url='http://github.com/mwilliamson/python-vendorize',
-    packages=['vendorize'],
+    packages=find_packages(exclude=["tests", "tests.*", "examples", "examples.*"]),
+    scripts=["scripts/python-vendorize"],
     install_requires=["tempman>=0.1.3,<0.2", "distlib>=0.2.1,<0.3"],
     keywords="vendor vendorize",
 )

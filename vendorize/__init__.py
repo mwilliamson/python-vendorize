@@ -1,5 +1,5 @@
 import os
-from ConfigParser import RawConfigParser
+from ._vendor.six.moves.configparser import RawConfigParser
 
 from .files import mkdir_p, copy, copy_recursive, ensure_file_exists
 from . import pypi

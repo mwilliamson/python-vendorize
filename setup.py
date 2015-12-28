@@ -21,5 +21,6 @@ setup(
     scripts=["scripts/python-vendorize"],
     install_requires=["tempman>=0.1.3,<0.2", "distlib>=0.2.1,<0.3"],
     keywords="vendor vendorize",
+    license="BSD-2-Clause",
 )
 

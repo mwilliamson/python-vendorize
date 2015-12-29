@@ -2,10 +2,13 @@ import sys
 import os
 import shutil
 import contextlib
+import io
 
 from nose.tools import istest, assert_equal
 from spur import LocalShell
 import tempman
+
+from vendorize._vendor import six
 
 _local = LocalShell()
 
@@ -31,7 +34,15 @@ def absolute_paths_in_same_distribution_are_rewritten_to_be_relative():
 def _vendorize_example(example_name):
     path = os.path.join(os.path.dirname(__file__), "../examples", example_name)
     _clean_project(path)
-    _local.run(["python-vendorize"], cwd=path, stdout=sys.stdout, stderr=sys.stderr)
+    
+    output = io.BytesIO()
+    
+    _local.run(
+        ["python-vendorize"],
+        cwd=path,
+        stdout=output,
+        stderr=output)
+    print(output.getvalue().decode("utf8"))
     yield path
 
 

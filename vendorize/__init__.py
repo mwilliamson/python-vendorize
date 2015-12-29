@@ -1,10 +1,9 @@
 import os
-import collections
 import subprocess
-import ast
 from ._vendor.six.moves.configparser import RawConfigParser
 
 from .files import mkdir_p, ensure_file_exists
+from .import_rewrite import rewrite_imports_in_module
 
 
 def vendorize_requirements(path):
@@ -64,65 +63,7 @@ def _rewrite_imports_in_module(module_path, top_level_names, depth):
     with open(module_path) as source_file:
         source = source_file.read()
     
-    with open(module_path) as source_file:
-        source_lines = list(source_file)
+    rewritten_source = rewrite_imports_in_module(source, top_level_names, depth)
     
-    def _should_rewrite_import(name):
-        return name.split(".")[0] in top_level_names
-    
-    def _generate_import_from_replacement(node):
-        line = source_lines[node.lineno - 1]
-        col_offset = node.col_offset
-        from_keyword = "from"
-        assert line[col_offset:col_offset + len(from_keyword)] == from_keyword
-        col_offset += len(from_keyword)
-        while line[col_offset].isspace():
-            col_offset += 1
-        return _Replacement(
-            _Location(node.lineno, col_offset),
-            0,
-            "." + ("." * depth))
-    
-    replacements = []
-    
-    class ImportVisitor(ast.NodeVisitor):
-        def visit_Import(self, node):
-            for name_index, name in enumerate(node.names):
-                if _should_rewrite_import(name.name):
-                    raise Exception("import rewriting not implemented")
-            
-        def visit_ImportFrom(self, node):
-            if _should_rewrite_import(node.module):
-                replacements.append(_generate_import_from_replacement(node))
-    
-    python_ast = ast.parse(source)
-    ImportVisitor().visit(python_ast)
-    _replace_strings(module_path, replacements)
-
-
-_Location = collections.namedtuple("_Location", ["lineno", "col_offset"])
-
-_Replacement = collections.namedtuple("_Replacement", [
-    "location",
-    "length",
-    "value"
-])
-
-def _replace_strings(path, replacements):
-    with open(path) as source_file:
-        lines = list(source_file.readlines())
-    
-    replacements = sorted(replacements, key=lambda replacement: replacement.location, reverse=True)
-    
-    for replacement in replacements:
-        line_index = replacement.location.lineno - 1
-        col_offset = replacement.location.col_offset
-        lines[line_index] = _str_replace(lines[line_index], replacement.length, col_offset, replacement.value)
-    
-    with open(path, "w") as source_file:
-        source_file.write("".join(lines))
-
-
-def _str_replace(original, length, index, to_insert):
-    return original[:index] + to_insert + original[index + length:]
-
+    with open(module_path, "w") as source_file:
+        source_file.write(rewritten_source)

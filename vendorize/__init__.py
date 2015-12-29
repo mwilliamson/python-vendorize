@@ -9,7 +9,7 @@ def vendorize_requirements(path):
     require_prefix = "require:"
     parser = RawConfigParser()
     parser.read(path)
-    target_directory = os.path.join(os.path.dirname(path), parser.get("vendorize", "destination"))
+    target_directory = os.path.join(os.path.dirname(path), parser.get("vendorize", "target"))
     ensure_file_exists(os.path.join(target_directory, "__init__.py"))
     for section in parser.sections():
         if section.startswith(require_prefix):

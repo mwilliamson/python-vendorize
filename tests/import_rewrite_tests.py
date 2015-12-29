@@ -41,3 +41,48 @@ def absolute_from_import_is_rewritten_to_relative_import_according_to_depth():
             "from a import b",
             top_level_names=["a"],
             depth=2))
+
+@istest
+def absolute_from_import_is_rewritten_to_relative_import_according_to_depth():
+    assert_equal(
+        "from ...a import b",
+        rewrite_imports_in_module(
+            "from a import b",
+            top_level_names=["a"],
+            depth=2))
+
+@istest
+def absolute_simple_import_of_top_level_module_is_rewritten_to_relative_import():
+    assert_equal(
+        "from ... import a",
+        rewrite_imports_in_module(
+            "import a",
+            top_level_names=["a"],
+            depth=2))
+
+@istest
+def absolute_simple_aliased_import_of_top_level_module_is_rewritten_to_relative_import():
+    assert_equal(
+        "from ... import a as b",
+        rewrite_imports_in_module(
+            "import a as b",
+            top_level_names=["a"],
+            depth=2))
+
+@istest
+def absolute_simple_aliased_import_of_submodule_is_rewritten_to_relative_import():
+    assert_equal(
+        "from ...a import b as c",
+        rewrite_imports_in_module(
+            "import a.b as c",
+            top_level_names=["a"],
+            depth=2))
+
+@istest
+def absolute_simple_import_of_submodule_is_rewritten_to_relative_import():
+    assert_equal(
+        "from ... import a\nfrom ...a import b as ___vendorize__0\na.b = ___vendorize__0",
+        rewrite_imports_in_module(
+            "import a.b",
+            top_level_names=["a"],
+            depth=2))

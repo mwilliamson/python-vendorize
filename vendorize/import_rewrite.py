@@ -1,12 +1,57 @@
 import ast
+import tokenize
+import io
 import collections
+import itertools
+from ._vendor import six
 
 
 def rewrite_imports_in_module(source, top_level_names, depth):
+    if six.PY2:
+        source = unicode(source)
     source_lines = source.splitlines(True)
+    line_endings = list(_find_line_endings(source))
+    
+    def _find_line_ending(position):
+        for line_ending in line_endings:
+            if line_ending >= position:
+                return line_ending
+        
+        raise Exception("Could not find line ending")
     
     def _should_rewrite_import(name):
         return name.split(".")[0] in top_level_names
+    
+    def _generate_simple_import_replacement(node):
+        temp_index = itertools.count()
+        
+        replacement = []
+        
+        for name in node.names:
+            parts = name.name.split(".")
+            if name.asname is None:
+                for part_index, part in enumerate(parts):
+                    if part_index == 0:
+                        replacement.append("from ." + ("." * depth) + " import " + part)
+                    else:
+                        variable_name = "___vendorize__{0}".format(next(temp_index))
+                        replacement.append(
+                            "from ." + ("." * depth) + ".".join(parts[:part_index]) +
+                            " import " + part +
+                            " as " + variable_name)
+                        replacement.append(".".join(parts[:part_index + 1]) + " = " + variable_name)
+            else:
+                replacement.append(
+                    "from ." + ("." * depth) + ".".join(parts[:-1]) +
+                    " import " + parts[-1] +
+                    " as " + name.asname)
+        
+        _, line_ending_col_offset = _find_line_ending((node.lineno, node.col_offset))
+        return _Replacement(
+            _Location(node.lineno, node.col_offset),
+            # TODO: handle multi-line statements
+            line_ending_col_offset - node.col_offset,
+            "\n".join(replacement))
     
     def _generate_import_from_replacement(node):
         line = source_lines[node.lineno - 1]
@@ -25,9 +70,8 @@ def rewrite_imports_in_module(source, top_level_names, depth):
     
     class ImportVisitor(ast.NodeVisitor):
         def visit_Import(self, node):
-            for name_index, name in enumerate(node.names):
-                if _should_rewrite_import(name.name):
-                    raise Exception("import rewriting not implemented")
+            if any(_should_rewrite_import(name.name) for name in node.names):
+                replacements.append(_generate_simple_import_replacement(node))
             
         def visit_ImportFrom(self, node):
             if _should_rewrite_import(node.module):
@@ -36,6 +80,17 @@ def rewrite_imports_in_module(source, top_level_names, depth):
     python_ast = ast.parse(source)
     ImportVisitor().visit(python_ast)
     return _replace_strings(source, replacements)
+
+
+def _find_line_endings(source):
+    try:
+        token_stream = tokenize.generate_tokens(io.StringIO(source + "\n").readline)
+        for token_type, token_str, start, end, line in token_stream:
+            if token_type == tokenize.NEWLINE:
+                yield start
+    except:
+        open("/tmp/blah", "w").write(source)
+        raise
 
 
 _Location = collections.namedtuple("_Location", ["lineno", "col_offset"])

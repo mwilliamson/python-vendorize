@@ -86,3 +86,12 @@ def absolute_simple_import_of_submodule_is_rewritten_to_relative_import():
             "import a.b",
             top_level_names=["a"],
             depth=2))
+
+@istest
+def can_have_single_import_statement_that_uses_both_rewritten_and_unrewritten_imports():
+    assert_equal(
+        "from ... import a\nimport b",
+        rewrite_imports_in_module(
+            "import a, b",
+            top_level_names=["a"],
+            depth=2))

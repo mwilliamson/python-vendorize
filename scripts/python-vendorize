@@ -13,7 +13,7 @@ def main():
     else:
         requirement = sys.argv[1]
         target_directory = sys.argv[2]
-        vendorize_requirement(requirement=requirement, target_directory=target_directory)
+        vendorize_requirement(cwd=".", requirement=requirement, target_directory=target_directory)
 
 
 if __name__ == "__main__":

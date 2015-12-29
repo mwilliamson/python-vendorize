@@ -28,23 +28,29 @@ def rewrite_imports_in_module(source, top_level_names, depth):
         replacement = []
         
         for name in node.names:
-            parts = name.name.split(".")
-            if name.asname is None:
-                for part_index, part in enumerate(parts):
-                    if part_index == 0:
-                        replacement.append("from ." + ("." * depth) + " import " + part)
-                    else:
-                        variable_name = "___vendorize__{0}".format(next(temp_index))
-                        replacement.append(
-                            "from ." + ("." * depth) + ".".join(parts[:part_index]) +
-                            " import " + part +
-                            " as " + variable_name)
-                        replacement.append(".".join(parts[:part_index + 1]) + " = " + variable_name)
+            if _should_rewrite_import(name.name):
+                parts = name.name.split(".")
+                if name.asname is None:
+                    for part_index, part in enumerate(parts):
+                        if part_index == 0:
+                            replacement.append("from ." + ("." * depth) + " import " + part)
+                        else:
+                            variable_name = "___vendorize__{0}".format(next(temp_index))
+                            replacement.append(
+                                "from ." + ("." * depth) + ".".join(parts[:part_index]) +
+                                " import " + part +
+                                " as " + variable_name)
+                            replacement.append(".".join(parts[:part_index + 1]) + " = " + variable_name)
+                else:
+                    replacement.append(
+                        "from ." + ("." * depth) + ".".join(parts[:-1]) +
+                        " import " + parts[-1] +
+                        " as " + name.asname)
             else:
-                replacement.append(
-                    "from ." + ("." * depth) + ".".join(parts[:-1]) +
-                    " import " + parts[-1] +
-                    " as " + name.asname)
+                statement = "import " + name.name
+                if name.asname is not None:
+                    statement += " as " + name.asname
+                replacement.append(statement)
         
         _, line_ending_col_offset = _find_line_ending((node.lineno, node.col_offset))
         return _Replacement(

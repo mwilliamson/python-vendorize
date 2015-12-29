@@ -15,10 +15,13 @@ def vendorize_requirements(path):
         if section.startswith(require_prefix):
             requirement = section[len(require_prefix):]
             vendorize_requirement(
+                cwd=os.path.dirname(path) or None,
                 requirement=requirement,
                 target_directory=target_directory)
 
 
-def vendorize_requirement(requirement, target_directory):
+def vendorize_requirement(cwd, requirement, target_directory):
     mkdir_p(target_directory)
-    subprocess.check_call(["pip", "install", "--no-dependencies", "--target", target_directory, requirement])
+    subprocess.check_call(
+        ["pip", "install", "--no-dependencies", "--target", target_directory, requirement],
+        cwd=cwd)

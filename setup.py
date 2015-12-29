@@ -19,7 +19,7 @@ setup(
     url='http://github.com/mwilliamson/python-vendorize',
     packages=find_packages(exclude=["tests", "tests.*", "examples", "examples.*"]),
     scripts=["scripts/python-vendorize"],
-    install_requires=["tempman>=0.1.3,<0.2", "distlib>=0.2.1,<0.3"],
+    install_requires=["tempman>=0.1.3,<0.2"],
     keywords="vendor vendorize",
     license="BSD-2-Clause",
 )

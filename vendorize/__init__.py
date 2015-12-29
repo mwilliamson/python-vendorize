@@ -1,8 +1,8 @@
 import os
+import subprocess
 from ._vendor.six.moves.configparser import RawConfigParser
 
-from .files import mkdir_p, copy, copy_recursive, ensure_file_exists
-from . import pypi
+from .files import mkdir_p, ensure_file_exists
 
 
 def vendorize_requirements(path):
@@ -20,15 +20,5 @@ def vendorize_requirements(path):
 
 
 def vendorize_requirement(requirement, target_directory):
-    with pypi.download_requirement_source(requirement) as source:
-        mkdir_p(target_directory)
-        
-        for top_level_name in source.top_level():
-            module_path = os.path.join(source.path, top_level_name + ".py")
-            if os.path.exists(module_path):
-                copy(module_path, target_directory)
-            
-            package_path = os.path.join(source.path, top_level_name)
-            if os.path.exists(package_path):
-                target_package_directory = os.path.join(target_directory, top_level_name)
-                copy_recursive(package_path, target_package_directory)
+    mkdir_p(target_directory)
+    subprocess.check_call(["pip", "install", "--no-dependencies", "--target", target_directory, requirement])

@@ -21,6 +21,12 @@ def can_vendorize_local_modules_from_relative_paths():
         result = _local.run(["python", os.path.join(project_path, "main.py")])
         assert_equal(b"hello\n", result.output)
 
+@istest
+def absolute_paths_in_same_distribution_are_rewritten_to_be_relative():
+    with _vendorize_example("absolute-import-rewrite") as project_path:
+        result = _local.run(["python", os.path.join(project_path, "main.py")])
+        assert_equal(b"hello\n", result.output)
+
 @contextlib.contextmanager
 def _vendorize_example(example_name):
     path = os.path.join(os.path.dirname(__file__), "../examples", example_name)

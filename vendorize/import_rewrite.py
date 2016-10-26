@@ -89,14 +89,10 @@ def rewrite_imports_in_module(source, top_level_names, depth):
 
 
 def _find_line_endings(source):
-    try:
-        token_stream = tokenize.generate_tokens(io.StringIO(source + "\n").readline)
-        for token_type, token_str, start, end, line in token_stream:
-            if token_type == tokenize.NEWLINE:
-                yield start
-    except:
-        open("/tmp/blah", "w").write(source)
-        raise
+    token_stream = tokenize.generate_tokens(io.StringIO(source + "\n").readline)
+    for token_type, token_str, start, end, line in token_stream:
+        if token_type == tokenize.NEWLINE:
+            yield start
 
 
 _Location = collections.namedtuple("_Location", ["lineno", "col_offset"])

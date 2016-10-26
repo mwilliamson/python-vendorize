@@ -6,10 +6,11 @@ that is, the Python source of the dependency is copied into your own package.
 Best used for small, pure-Python dependencies to avoid version conflicts
 when other packages require a different version of the same dependency.
 
-Dependencies you want vendorizing should be specified in ``vendorize.ini``.
-In the ``vendorize`` section, the ``target`` option describes where vendorized dependencies should be placed.
-Each dependency should have its own section named ``require:${REQUIREMENT}``.
-``$REQUIREMENT`` can be anything that ``pip`` would understand,
+Dependencies you want vendorizing should be specified in ``vendorize.toml``.
+``target`` should be a string containing the path where vendorized dependencies should be placed,
+relative to the directory that ``vendorize.toml`` is in.
+``requires`` should be a list of strings containing the dependencies.
+Each of these strings can be anything that ``pip`` would understand,
 such as a package name, a package name with version constraints or an URL.
 Dependencies can then be vendorized using ``python-vendorize``.
 
@@ -21,17 +22,18 @@ The directory structure would be something like:
     - hello
       - __init__.py
     - setup.py
-    - vendorize.ini
+    - vendorize.toml
 
-``vendorize.ini`` might look something like:
+``vendorize.toml`` might look something like:
 
 ::
 
-    [vendorize]
-    target=hello/_vendor
-    [require:six]
+    target = "hello/_vendor"
+    requires = [
+        "six",
+    ]
 
-I can then run ``python-vendorize`` in the same directory as ``vendorize.ini``.
+I can then run ``python-vendorize`` in the same directory as ``vendorize.toml``.
 The directory structure would then be something like:
 
 ::
@@ -44,7 +46,7 @@ The directory structure would then be something like:
         - six.py
       - __init__.py
     - setup.py
-    - vendorize.ini
+    - vendorize.toml
 
 In ``hello/__init__.py``, ``six`` can be imported from ``_vendor``:
 

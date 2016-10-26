@@ -42,7 +42,6 @@ def _vendorize_example(example_name):
         cwd=path,
         stdout=output,
         stderr=output)
-    print(output.getvalue().decode("utf8"))
     yield path
 
 

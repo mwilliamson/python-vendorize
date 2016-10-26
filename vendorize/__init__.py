@@ -1,24 +1,22 @@
 import os
 import subprocess
-from ._vendor.six.moves.configparser import RawConfigParser
 
+from ._vendor import pytoml as toml
 from .files import mkdir_p, ensure_file_exists
 from .import_rewrite import rewrite_imports_in_module
 
 
 def vendorize_requirements(path):
-    require_prefix = "require:"
-    parser = RawConfigParser()
-    parser.read(path)
-    target_directory = os.path.join(os.path.dirname(path), parser.get("vendorize", "target"))
+    with open(path) as fileobj:
+        config = toml.load(fileobj)
+    target_directory = os.path.join(os.path.dirname(path), config["target"])
     ensure_file_exists(os.path.join(target_directory, "__init__.py"))
-    for section in parser.sections():
-        if section.startswith(require_prefix):
-            requirement = section[len(require_prefix):]
-            vendorize_requirement(
-                cwd=os.path.dirname(path) or None,
-                requirement=requirement,
-                target_directory=target_directory)
+    for requirement in config["requires"]:
+        vendorize_requirement(
+            cwd=os.path.dirname(path) or None,
+            requirement=requirement,
+            target_directory=target_directory,
+        )
 
 
 def vendorize_requirement(cwd, requirement, target_directory):

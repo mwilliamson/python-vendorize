@@ -1,0 +1,4 @@
+target = "_vendor"
+requires = [
+    "six==1.10",
+]

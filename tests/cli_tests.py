@@ -35,13 +35,11 @@ def _vendorize_example(example_name):
     path = os.path.join(os.path.dirname(__file__), "../examples", example_name)
     _clean_project(path)
     
-    output = io.BytesIO()
-    
     _local.run(
         ["python-vendorize"],
         cwd=path,
-        stdout=output,
-        stderr=output)
+        encoding="utf-8",
+    )
     yield path
 
 

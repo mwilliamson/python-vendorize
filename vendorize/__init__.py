@@ -2,6 +2,7 @@ import io
 import os
 import subprocess
 
+from . import python_source
 from ._vendor import pytoml as toml
 from .files import mkdir_p, ensure_file_exists
 from .import_rewrite import rewrite_imports_in_module
@@ -59,8 +60,9 @@ def _rewrite_imports_in_package(package_path, top_level_names, depth):
     
     
 def _rewrite_imports_in_module(module_path, top_level_names, depth):
-    # TODO: read encoding
-    encoding = "utf-8"
+    with io.open(module_path, "rb") as source_file:
+        encoding = python_source.find_encoding(source_file)
+
     with io.open(module_path, "r", encoding=encoding) as source_file:
         source = source_file.read()
     

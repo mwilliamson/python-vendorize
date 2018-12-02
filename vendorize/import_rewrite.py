@@ -77,7 +77,7 @@ def rewrite_imports_in_module(source, top_level_names, depth):
                 replacements.append(_generate_simple_import_replacement(node))
             
         def visit_ImportFrom(self, node):
-            if _should_rewrite_import(node.module):
+            if not node.level and _should_rewrite_import(node.module):
                 replacements.append(_generate_import_from_replacement(node))
     
     python_ast = ast.parse(source)

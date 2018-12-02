@@ -54,6 +54,15 @@ def absolute_from_import_is_rewritten_to_relative_import_according_to_depth():
             depth=2))
 
 @istest
+def relative_from_import_is_ignored():
+    assert_equal(
+        "from . import b",
+        rewrite_imports_in_module(
+            "from . import b",
+            top_level_names=["a"],
+            depth=2))
+
+@istest
 def absolute_simple_import_of_top_level_module_is_rewritten_to_relative_import():
     assert_equal(
         "from ... import a",

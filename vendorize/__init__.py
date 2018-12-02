@@ -11,7 +11,7 @@ def vendorize_requirements(path):
         config = toml.load(fileobj)
     target_directory = os.path.join(os.path.dirname(path), config["target"])
     ensure_file_exists(os.path.join(target_directory, "__init__.py"))
-    for requirement in config["requires"]:
+    for requirement in config["packages"]:
         vendorize_requirement(
             cwd=os.path.dirname(path) or None,
             requirement=requirement,

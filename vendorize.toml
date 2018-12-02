@@ -1,5 +1,5 @@
 target = "vendorize/_vendor"
-requires = [
+packages = [
     "six==1.10.0",
     "pytoml==0.1.11",
 ]

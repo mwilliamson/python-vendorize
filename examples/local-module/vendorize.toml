@@ -1,4 +1,4 @@
 target = "_vendor"
-requires = [
+packages = [
     "./hello",
 ]

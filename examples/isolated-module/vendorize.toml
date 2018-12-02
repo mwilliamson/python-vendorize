@@ -1,4 +1,4 @@
 target = "_vendor"
-requires = [
+packages = [
     "six==1.10",
 ]

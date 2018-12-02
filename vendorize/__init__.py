@@ -70,3 +70,7 @@ def _rewrite_imports_in_module(module_path, top_level_names, depth):
     
     with io.open(module_path, "w", encoding=encoding, newline='') as source_file:
         source_file.write(rewritten_source)
+
+    pyc_path = os.path.splitext(module_path)[0] + ".pyc"
+    if os.path.exists(pyc_path):
+        os.unlink(pyc_path)

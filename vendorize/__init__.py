@@ -1,3 +1,4 @@
+import io
 import os
 import subprocess
 
@@ -58,10 +59,12 @@ def _rewrite_imports_in_package(package_path, top_level_names, depth):
     
     
 def _rewrite_imports_in_module(module_path, top_level_names, depth):
-    with open(module_path) as source_file:
+    # TODO: read encoding
+    encoding = "utf-8"
+    with io.open(module_path, "r", encoding=encoding) as source_file:
         source = source_file.read()
     
     rewritten_source = rewrite_imports_in_module(source, top_level_names, depth)
     
-    with open(module_path, "w") as source_file:
+    with io.open(module_path, "w", encoding=encoding) as source_file:
         source_file.write(rewritten_source)

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from nose.tools import istest, assert_equal
 
 from vendorize.import_rewrite import rewrite_imports_in_module

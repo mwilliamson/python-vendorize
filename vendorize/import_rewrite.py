@@ -3,12 +3,9 @@ import tokenize
 import io
 import collections
 import itertools
-from ._vendor import six
 
 
 def rewrite_imports_in_module(source, top_level_names, depth):
-    if six.PY2:
-        source = unicode(source)
     source_lines = source.splitlines(True)
     line_endings = list(_find_line_endings(source))
     

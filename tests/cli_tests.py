@@ -8,8 +8,6 @@ from nose.tools import istest, assert_equal
 from spur import LocalShell
 import tempman
 
-from vendorize._vendor import six
-
 _local = LocalShell()
 
 @istest

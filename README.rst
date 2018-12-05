@@ -9,7 +9,7 @@ when other packages require a different version of the same dependency.
 Dependencies you want vendorizing should be specified in ``vendorize.toml``.
 ``target`` should be a string containing the path where vendorized dependencies should be placed,
 relative to the directory that ``vendorize.toml`` is in.
-``requires`` should be a list of strings containing the dependencies.
+``packages`` should be a list of strings containing the dependencies.
 Each of these strings can be anything that ``pip`` would understand,
 such as a package name, a package name with version constraints or an URL.
 Dependencies can then be vendorized using ``python-vendorize``.
@@ -29,7 +29,7 @@ The directory structure would be something like:
 ::
 
     target = "hello/_vendor"
-    requires = [
+    packages = [
         "six",
     ]
 

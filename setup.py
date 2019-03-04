@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name='vendorize',
-    version='0.2.0',
+    version='0.2.1',
     description='Vendorize packages from PyPI',
     long_description=read("README.rst"),
     author='Michael Williamson',

@@ -1,0 +1,2 @@
+def world():
+    print("world")

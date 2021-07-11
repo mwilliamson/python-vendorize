@@ -28,11 +28,23 @@ def absolute_paths_in_same_distribution_are_rewritten_to_be_relative():
         result = _local.run(["python", os.path.join(project_path, "main.py")])
         assert_equal(b"hello\n", result.output)
 
+@istest
+def can_vendorize_multiple_dependencies():
+    with _vendorize_example("multiple-dependencies") as project_path:
+        result = _local.run(["python", os.path.join(project_path, "main.py")])
+        assert_equal(b"hello\nworld\n", result.output)
+
+@istest
+def can_vendorize_multiple_dependencies_that_require_import_rewriting():
+    with _vendorize_example("multiple-dependencies-with-rewrite") as project_path:
+        result = _local.run(["python", os.path.join(project_path, "main.py")])
+        assert_equal(b"hello\nworld\n", result.output)
+
 @contextlib.contextmanager
 def _vendorize_example(example_name):
     path = os.path.join(os.path.dirname(__file__), "../examples", example_name)
     _clean_project(path)
-    
+
     _local.run(
         ["python-vendorize"],
         cwd=path,

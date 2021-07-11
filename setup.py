@@ -18,7 +18,11 @@ setup(
     author_email='mike@zwobble.org',
     url='http://github.com/mwilliamson/python-vendorize',
     packages=find_packages(exclude=["tests", "tests.*", "examples", "examples.*"]),
-    scripts=["scripts/python-vendorize"],
+    entry_points={
+        "console_scripts": [
+            "python-vendorize=vendorize.cli:main"
+        ]
+    },
     keywords="vendor vendorize",
     license="BSD-2-Clause",
 )

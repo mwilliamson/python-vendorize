@@ -1,8 +1,6 @@
-#!/usr/bin/env python
-
 import sys
 
-from vendorize import vendorize_requirement, vendorize_requirements
+from . import vendorize_requirement, vendorize_requirements
 
 
 def main():

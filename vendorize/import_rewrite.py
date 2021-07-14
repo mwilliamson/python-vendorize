@@ -3,27 +3,28 @@ import tokenize
 import io
 import collections
 import itertools
+import sys
 
 
 def rewrite_imports_in_module(source, top_level_names, depth):
     source_lines = source.splitlines(True)
     line_endings = list(_find_line_endings(source))
-    
+
     def _find_line_ending(position):
         for line_ending in line_endings:
             if line_ending >= position:
                 return line_ending
-        
+
         raise Exception("Could not find line ending")
-    
+
     def _should_rewrite_import(name):
         return name.split(".")[0] in top_level_names
-    
+
     def _generate_simple_import_replacement(node):
         temp_index = itertools.count()
-        
+
         replacement = []
-        
+
         for name in node.names:
             if _should_rewrite_import(name.name):
                 parts = name.name.split(".")
@@ -48,14 +49,14 @@ def rewrite_imports_in_module(source, top_level_names, depth):
                 if name.asname is not None:
                     statement += " as " + name.asname
                 replacement.append(statement)
-        
+
         _, line_ending_col_offset = _find_line_ending((node.lineno, node.col_offset))
         return _Replacement(
             _Location(node.lineno, node.col_offset),
             # TODO: handle multi-line statements
             line_ending_col_offset - node.col_offset,
             "\n".join(replacement))
-    
+
     def _generate_import_from_replacement(node):
         line = source_lines[node.lineno - 1]
         col_offset = node.col_offset
@@ -68,19 +69,23 @@ def rewrite_imports_in_module(source, top_level_names, depth):
             _Location(node.lineno, col_offset),
             0,
             "." + ("." * depth))
-    
+
     replacements = []
-    
+
     class ImportVisitor(ast.NodeVisitor):
         def visit_Import(self, node):
             if any(_should_rewrite_import(name.name) for name in node.names):
                 replacements.append(_generate_simple_import_replacement(node))
-            
+
         def visit_ImportFrom(self, node):
             if not node.level and _should_rewrite_import(node.module):
                 replacements.append(_generate_import_from_replacement(node))
-    
-    python_ast = ast.parse(source)
+
+    if sys.version_info[0] == 2 and isinstance(source, unicode):
+        source2 = source.encode('utf-8')
+    else:
+        source2 = source
+    python_ast = ast.parse(source2)
     ImportVisitor().visit(python_ast)
     return _replace_strings(source, replacements)
 
@@ -102,18 +107,16 @@ _Replacement = collections.namedtuple("_Replacement", [
 
 def _replace_strings(source, replacements):
     lines = source.splitlines(True)
-    
+
     replacements = sorted(replacements, key=lambda replacement: replacement.location, reverse=True)
-    
+
     for replacement in replacements:
         line_index = replacement.location.lineno - 1
         col_offset = replacement.location.col_offset
         lines[line_index] = _str_replace(lines[line_index], replacement.length, col_offset, replacement.value)
-    
+
     return "".join(lines)
 
 
 def _str_replace(original, length, index, to_insert):
     return original[:index] + to_insert + original[index + length:]
-
-

@@ -42,7 +42,7 @@ The directory structure would then be something like:
     ./
     ├── hello/
     ├── _vendor/
-    │   ├──  six.dist-info/
+    │   ├── six.dist-info/
     │   │   └── ...
     │   ├── __init__.py
     │   └── six.py
@@ -61,3 +61,10 @@ Installation
 .. code:: bash
 
     pip install vendorize
+
+Usage
+~~~~~
+
+.. code:: bash
+
+    python-vendorize

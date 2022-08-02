@@ -17,16 +17,17 @@ Dependencies can then be vendorized using ``python-vendorize``.
 For instance, suppose I want to vendorize ``six`` so it can be used from the package ``hello``.
 The directory structure would be something like:
 
-::
+.. code::
 
-    - hello
-      - __init__.py
-    - setup.py
-    - vendorize.toml
+    ./
+    ├── hello/
+    │   └── __init__.py
+    ├── setup.py
+    └── vendorize.toml
 
 ``vendorize.toml`` might look something like:
 
-::
+.. code::
 
     target = "hello/_vendor"
     packages = [
@@ -36,17 +37,17 @@ The directory structure would be something like:
 I can then run ``python-vendorize`` in the same directory as ``vendorize.toml``.
 The directory structure would then be something like:
 
-::
+.. code::
 
-    - hello
-      - _vendor
-        - six.dist-info
-          - ...
-        - __init__.py
-        - six.py
-      - __init__.py
-    - setup.py
-    - vendorize.toml
+    ./
+    ├── hello/
+    ├── _vendor/
+    │   ├──  six.dist-info/
+    │   │   └── ...
+    │   ├── __init__.py
+    │   └── six.py
+    ├── setup.py
+    └── vendorize.toml
 
 In ``hello/__init__.py``, ``six`` can be imported from ``_vendor``:
 
@@ -57,6 +58,6 @@ In ``hello/__init__.py``, ``six`` can be imported from ``_vendor``:
 Installation
 ~~~~~~~~~~~~
 
-::
+.. code:: bash
 
     pip install vendorize

@@ -18,13 +18,13 @@ def vendorize_requirements(path):
         requirements=config["packages"],
         target_directory=target_directory,
     )
-    top_level_names = _read_top_level_names(target_directory)
+    top_level_names = _read_top_level_names(target_directory) + config.get("top_level_names", [])
     _rewrite_imports(target_directory, top_level_names)
 
 
-def vendorize_requirement(cwd, requirement, target_directory):
+def vendorize_requirement(cwd, requirement, target_directory, top_level_names):
     _download_requirements(cwd=cwd, requirements=[requirement], target_directory=target_directory)
-    top_level_names = _read_top_level_names(target_directory)
+    top_level_names = _read_top_level_names(target_directory) + (top_level_names or [])
     _rewrite_imports(target_directory, top_level_names)
 
 

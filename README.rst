@@ -54,6 +54,11 @@ In ``hello/__init__.py``, ``six`` can be imported from ``_vendor``:
 
     from ._vendor import six
 
+Packages that are built not with Setuptools (but for example Flit or Poetry) might not have a `top_level.txt` file
+in their distribution info. However, vendorize requires this information to rewrite absolute imports. If you encounter
+that an absolute import is not rewritten as it should have, set the `top_level_names` option in `vendorize.toml`. These
+will be taken into account in addition to any records from `top_level.txt` files.
+
 Installation
 ~~~~~~~~~~~~
 

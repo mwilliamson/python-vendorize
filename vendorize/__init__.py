@@ -1,5 +1,7 @@
+import csv
 import io
 import os
+import pathlib
 import subprocess
 
 from . import python_source
@@ -38,13 +40,43 @@ def _read_top_level_names(target_directory):
     top_level_names = set()
 
     for name in os.listdir(target_directory):
-        if name.endswith(".egg-info") or name.endswith(".dist-info"):
-            path = os.path.join(target_directory, name, "top_level.txt")
-            if os.path.exists(path):
-                with open(path) as top_level_file:
-                    top_level_names.update(list(filter(None, map(lambda line: line.strip(), top_level_file))))
+        if name.endswith(".dist-info"):
+            path = os.path.join(target_directory, name)
+            top_level_names.update(_read_top_level_names_from_dist_info(path))
+
+        elif name.endswith(".egg-info"):
+            path = os.path.join(target_directory, name)
+            top_level_names.update(_read_top_level_names_from_egg_info(path))
 
     return top_level_names
+
+
+def _read_top_level_names_from_dist_info(dist_info_path):
+    path = os.path.join(dist_info_path, "RECORD")
+
+    if not os.path.exists(path):
+        return
+
+    py_extension = ".py"
+
+    with open(path, "rt", encoding="utf-8") as fileobj:
+        for line in csv.reader(fileobj):
+            if len(line) > 0:
+                record_path = line[0]
+                if record_path.endswith(py_extension):
+                    top_part = pathlib.Path(record_path).parts[0]
+                    if top_part.endswith(py_extension):
+                        yield top_part[:-len(py_extension)]
+                    else:
+                        yield top_part
+
+
+def _read_top_level_names_from_egg_info(egg_info_path):
+    path = os.path.join(egg_info_path, "top_level.txt")
+    if os.path.exists(path):
+        with open(path) as top_level_file:
+            return list(filter(None, map(lambda line: line.strip(), top_level_file)))
+
 
 def _rewrite_imports(target_directory, top_level_names):
     for top_level_name in top_level_names:

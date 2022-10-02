@@ -4,38 +4,33 @@ import shutil
 import contextlib
 import io
 
-from nose.tools import istest, assert_equal
+from nose.tools import assert_equal
 from spur import LocalShell
 import tempman
 
 _local = LocalShell()
 
-@istest
-def vendorizing_single_module_with_no_dependencies_grabs_one_module_file():
+def test_vendorizing_single_module_with_no_dependencies_grabs_one_module_file():
     with _vendorize_example("isolated-module") as project_path:
         result = _local.run(["python", os.path.join(project_path, "main.py")])
         assert_equal(b"('one', 1)", result.output.strip())
 
-@istest
-def can_vendorize_local_modules_from_relative_paths():
+def test_can_vendorize_local_modules_from_relative_paths():
     with _vendorize_example("local-module") as project_path:
         result = _local.run(["python", os.path.join(project_path, "main.py")])
         assert_equal(b"hello\n", result.output)
 
-@istest
-def absolute_paths_in_same_distribution_are_rewritten_to_be_relative():
+def test_absolute_paths_in_same_distribution_are_rewritten_to_be_relative():
     with _vendorize_example("absolute-import-rewrite") as project_path:
         result = _local.run(["python", os.path.join(project_path, "main.py")])
         assert_equal(b"hello\n", result.output)
 
-@istest
-def can_vendorize_multiple_dependencies():
+def test_can_vendorize_multiple_dependencies():
     with _vendorize_example("multiple-dependencies") as project_path:
         result = _local.run(["python", os.path.join(project_path, "main.py")])
         assert_equal(b"hello\nworld\n", result.output)
 
-@istest
-def can_vendorize_multiple_dependencies_that_require_import_rewriting():
+def test_can_vendorize_multiple_dependencies_that_require_import_rewriting():
     with _vendorize_example("multiple-dependencies-with-rewrite") as project_path:
         result = _local.run(["python", os.path.join(project_path, "main.py")])
         assert_equal(b"hello\nworld\n", result.output)

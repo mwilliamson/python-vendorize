@@ -8,7 +8,7 @@ jobs:
 
         strategy:
             matrix:
-                python-version: [2.7, 3.5, pypy2, pypy3]
+                python-version: [3.5, pypy2, pypy3]
 
         steps:
 

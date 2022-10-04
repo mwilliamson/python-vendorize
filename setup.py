@@ -25,5 +25,6 @@ setup(
     },
     keywords="vendor vendorize",
     license="BSD-2-Clause",
+    python_requires=">=3.5",
 )
 

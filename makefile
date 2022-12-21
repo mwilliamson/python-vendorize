@@ -10,7 +10,7 @@ test-all:
 
 .PHONY: upload
 
-upload: test-all build-dist
+upload: build-dist
 	_virtualenv/bin/twine upload dist/*
 	make clean
 

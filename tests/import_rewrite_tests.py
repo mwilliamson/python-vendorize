@@ -98,7 +98,7 @@ def test_absolute_simple_import_of_submodule_is_rewritten_to_relative_import():
         depth=2,
     )
 
-    assert "from ... import a\nfrom ...a import b as ___vendorize__0" == result
+    assert "from ... import a;from ...a import b as ___vendorize__0" == result
 
 
 def test_absolute_simple_import_of_nested_submodule_is_rewritten_to_relative_import():
@@ -108,7 +108,7 @@ def test_absolute_simple_import_of_nested_submodule_is_rewritten_to_relative_imp
         depth=2,
     )
 
-    assert "from ... import a\nfrom ...a.b.c import d as ___vendorize__0" == result
+    assert "from ... import a;from ...a.b.c import d as ___vendorize__0" == result
 
 
 def test_can_have_single_import_statement_that_uses_both_rewritten_and_unrewritten_imports():
@@ -118,4 +118,4 @@ def test_can_have_single_import_statement_that_uses_both_rewritten_and_unrewritt
         depth=2,
     )
 
-    assert "from ... import a\nimport b" == result
+    assert "from ... import a;import b" == result

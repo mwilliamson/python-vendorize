@@ -24,6 +24,11 @@ def test_absolute_paths_in_same_distribution_are_rewritten_to_be_relative():
         result = _local.run(["python", os.path.join(project_path, "main.py")])
         assert b"hello\n" == result.output
 
+def test_can_rewrite_indented_absolute_simple_imports():
+    with _vendorize_example("indented-absolute-simple-import-rewrite") as project_path:
+        result = _local.run(["python", os.path.join(project_path, "main.py")])
+        assert b"hello\n" == result.output
+
 def test_can_vendorize_multiple_dependencies():
     with _vendorize_example("multiple-dependencies") as project_path:
         result = _local.run(["python", os.path.join(project_path, "main.py")])

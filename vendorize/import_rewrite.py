@@ -52,7 +52,7 @@ def rewrite_imports_in_module(source, top_level_names, depth):
             _Location(node.lineno, node.col_offset),
             # TODO: handle multi-line statements
             line_ending_col_offset - node.col_offset,
-            "\n".join(replacement))
+            ";".join(replacement))
 
     def _generate_import_from_replacement(node):
         line = source_lines[node.lineno - 1]

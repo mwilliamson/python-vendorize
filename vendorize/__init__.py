@@ -11,13 +11,32 @@ from .files import mkdir_p, ensure_file_exists
 from .import_rewrite import rewrite_imports_in_module
 
 
-def vendorize_requirements(path):
-    with open(path) as fileobj:
-        config = toml.load(fileobj)
-    target_directory = os.path.join(os.path.dirname(path), config["target"])
+def vendorize_directory(path):
+    config = _read_directory_config(path)
+
+    return vendorize_requirements(config=config, directory_path=path)
+
+
+def _read_directory_config(path):
+    try:
+        with open(os.path.join(path, "vendorize.toml")) as fileobj:
+            return toml.load(fileobj)
+    except FileNotFoundError:
+        pass
+
+    try:
+        with open(os.path.join(path, "pyproject.toml")) as fileobj:
+            pyproject = toml.load(fileobj)
+            return pyproject["tool"]["vendorize"]
+    except FileNotFoundError:
+        raise RuntimeError("Could not find vendorize config")
+
+
+def vendorize_requirements(config, directory_path):
+    target_directory = os.path.join(directory_path, config["target"])
     ensure_file_exists(os.path.join(target_directory, "__init__.py"))
     _download_requirements(
-        cwd=os.path.dirname(path) or None,
+        cwd=directory_path or None,
         requirements=config["packages"],
         target_directory=target_directory,
     )

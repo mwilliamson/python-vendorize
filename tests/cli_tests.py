@@ -39,6 +39,11 @@ def test_can_vendorize_multiple_dependencies_that_require_import_rewriting():
         result = _local.run(["python", os.path.join(project_path, "main.py")])
         assert b"hello\nworld\n" == result.output
 
+def test_can_vendorize_with_pyproject_toml():
+    with _vendorize_example("isolated-module-pyproject") as project_path:
+        result = _local.run(["python", os.path.join(project_path, "main.py")])
+        assert b"('one', 1)" == result.output.strip()
+
 @contextlib.contextmanager
 def _vendorize_example(example_name):
     path = os.path.join(os.path.dirname(__file__), "../examples", example_name)

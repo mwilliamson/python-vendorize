@@ -1,11 +1,11 @@
 import sys
 
-from . import vendorize_requirement, vendorize_requirements
+from . import vendorize_directory, vendorize_requirement, vendorize_requirements
 
 
 def main():
     if len(sys.argv) < 2:
-        vendorize_requirements(path="vendorize.toml")
+        vendorize_directory(".")
     elif len(sys.argv) < 3:
         vendorize_requirements(path=sys.argv[1])
     else:

@@ -1,7 +1,7 @@
 *.pyc
 /_virtualenv
 *.dist-info
-/*.egg-info
+*.egg-info
 /.tox
 /MANIFEST
 /examples/**/_vendor

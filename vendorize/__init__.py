@@ -52,7 +52,7 @@ def vendorize_requirement(cwd, requirement, target_directory):
 
 def _download_requirements(cwd, requirements, target_directory):
     mkdir_p(target_directory)
-    subprocess.check_call(
+    subprocess.call(
         [sys.executable, "-m", "pip", "install", "--no-dependencies", "--target", target_directory] + requirements,
         cwd=cwd)
 

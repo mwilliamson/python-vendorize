@@ -54,6 +54,18 @@ In ``hello/__init__.py``, ``six`` can be imported from ``_vendor``:
 
     from ._vendor import six
 
+The configuration can also be stored in ``pyproject.toml`` instead of ``vendorize.toml``.
+When using ``pyproject.toml``, the configuration should be stored in ``[tool.vendorize]``.
+For instance:
+
+::
+
+    [tool.vendorize]
+    target = "hello/_vendor"
+    packages = [
+        "six",
+    ]
+
 Installation
 ~~~~~~~~~~~~
 

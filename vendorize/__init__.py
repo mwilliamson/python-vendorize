@@ -3,6 +3,7 @@ import io
 import os
 import pathlib
 import subprocess
+import sys
 
 from . import python_source
 from ._vendor import pytoml as toml
@@ -33,7 +34,7 @@ def vendorize_requirement(cwd, requirement, target_directory):
 def _download_requirements(cwd, requirements, target_directory):
     mkdir_p(target_directory)
     subprocess.check_call(
-        ["pip", "install", "--no-dependencies", "--target", target_directory] + requirements,
+        [sys.executable, "-m", "pip", "install", "--no-dependencies", "--target", target_directory] + requirements,
         cwd=cwd)
 
 def _read_top_level_names(target_directory):
